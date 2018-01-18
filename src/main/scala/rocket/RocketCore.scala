@@ -973,7 +973,7 @@ class RocketWithRVFI(implicit p: Parameters) extends Rocket()(p) {
 
 // if trap or interrupt occurs, set rd_addr, rd_wdata to 0
     when(t.exception) {
-      inst_commit.rd_adr := UInt(0)
+      inst_commit.rd_addr := UInt(0)
       inst_commit.rd_wdata := UInt(0)
     }
     .elsewhen (wfd) {
