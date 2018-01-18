@@ -915,11 +915,11 @@ class RocketWithRVFI(implicit p: Parameters) extends Rocket()(p) {
   val xpt_encountered_nxt = Wire(Bool())
   val xpt_encountered = Reg(init=false.B, next=xpt_encountered_nxt)
   xpt_encountered_nxt := xpt_encountered
-  when(t.valid) {
-    xpt_encountered_nxt := false.B
+  when (csr.io.interrupt) {
+    xpt_encountered_nxt := true.B
   } .otherwise {
-    when (csr.io.interrupt) {
-      xpt_encountered_nxt := true.B
+    when(t.valid) {
+      xpt_encountered_nxt := false.B
     }
   }
 
@@ -930,7 +930,7 @@ class RocketWithRVFI(implicit p: Parameters) extends Rocket()(p) {
   inst_commit.insn := t.insn
   inst_commit.order := UInt(0)
   // Interrupt should be raised on the first instruction of the interrupt handler
-  inst_commit.intr := UInt(0)
+  inst_commit.intr := xpt_encountered
   // Trap occurs on an instruction fault
   inst_commit.trap := t.exception
   inst_commit.halt := UInt(0)
@@ -965,13 +965,18 @@ class RocketWithRVFI(implicit p: Parameters) extends Rocket()(p) {
 
   inst_commit.valid := Bool(false)
 
-  t.exception
   when (t.valid) {
 
     inst_order := inst_order + UInt(1)
     inst_commit.valid := Bool(true)
     inst_commit.order := inst_order
-    when (wfd) {
+
+// if trap or interrupt occurs, set rd_addr, rd_wdata to 0
+    when(t.exception) {
+      inst_commit.rd_adr := UInt(0)
+      inst_commit.rd_wdata := UInt(0)
+    }
+    .elsewhen (wfd) {
       inst_commit.rd_addr := rd
       inst_commit.rd_wdata := rd+UInt(32)
     }
