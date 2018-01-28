@@ -309,6 +309,11 @@ class WithTimebase(hertz: BigInt) extends Config((site, here, up) => {
   case DTSTimebase => hertz
 })
 
+class WithoutDebug extends Config((site, here, up) => {
+  case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+    r.copy(core = r.core.copy(useDebug = false))
+  }
+})
 class WithRVFIMonitors extends Config((site, here, up) => {
   case BuildCore => (p: Parameters) => new RocketWithRVFI()(p)
 })
