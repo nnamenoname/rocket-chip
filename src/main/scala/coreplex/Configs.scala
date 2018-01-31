@@ -314,6 +314,31 @@ class WithoutDebug extends Config((site, here, up) => {
     r.copy(core = r.core.copy(useDebug = false))
   }
 })
+
+class WithNPMP(num_pmp: Int) extends Config((site, here, up) => {
+  case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+    r.copy(core = r.core.copy(nPMPs = num_pmp))
+  }
+})
+
+class WithoutMISAWrite extends Config((site, here, up) => {
+  case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+    r.copy(core = r.core.copy(misaWritable = false))
+  }
+})
+
+class WithoutmtvecWrite extends Config((site, here, up) => {
+  case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+    r.copy(core = r.core.copy(mtvecWritable = false))
+  }
+})
+
+class WithoutCounters extends Config((site, here, up) => {
+  case RocketTilesKey => up(RocketTilesKey, site) map { r =>
+    r.copy(core = r.core.copy(haveBasicCounters = false))
+  }
+})
+
 class WithRVFIMonitors extends Config((site, here, up) => {
   case BuildCore => (p: Parameters) => new RocketWithRVFI()(p)
 })

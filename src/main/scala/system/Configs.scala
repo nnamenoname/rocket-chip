@@ -79,6 +79,11 @@ class DefaultFPGASmallConfig extends Config(new DefaultFPGAConfig)
 class DefaultConfigWithRVFIMonitors extends Config(
   (new WithRVFIMonitors ++
     new WithoutDebug ++
+    new WithNBreakpoints(0) ++
+    new WithNPMP(0) ++
+    new WithoutMISAWrite ++
+    new WithoutmtvecWrite ++
+    new WithoutCounters ++
     new WithoutMulDiv ++
     new WithoutFPU ++
     new WithNMemoryChannels(0) ++
