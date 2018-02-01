@@ -975,6 +975,18 @@ class RocketWithRVFI(implicit p: Parameters) extends Rocket()(p) {
     when(t.exception) {
       inst_commit.rd_addr := UInt(0)
       inst_commit.rd_wdata := UInt(0)
+      // set read registers (rs?_addr, rs?_rdata) to 0 on illegal instructions
+      // The pipelines actually leaves them as "X" during decode of illegal instruction
+      // In case of valid instruction for which extension is not active, e.g. fmadd
+      //   If the extension is valid, it will decode correctly and not read from integer registers
+      //   but if extension is invalid, it will integer register read will be set to "X" and it will
+      //   attempt to decode rs1 from the instruction (which will have incorrect value since
+      //   floating point instruction have diffferent encoding)
+      // Therefore, we set all illegal instructions to read from 0 register
+      inst_commit.rs1_addr := UInt(0)
+      inst_commit.rs1_rdata := UInt(0)
+      inst_commit.rs2_addr := UInt(0)
+      inst_commit.rs2_rdata := UInt(0)
     }
     .elsewhen (wfd) {
       inst_commit.rd_addr := rd
