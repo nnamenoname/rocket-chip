@@ -983,10 +983,12 @@ class RocketWithRVFI(implicit p: Parameters) extends Rocket()(p) {
       //   attempt to decode rs1 from the instruction (which will have incorrect value since
       //   floating point instruction have diffferent encoding)
       // Therefore, we set all illegal instructions to read from 0 register
-      inst_commit.rs1_addr := UInt(0)
-      inst_commit.rs1_rdata := UInt(0)
-      inst_commit.rs2_addr := UInt(0)
-      inst_commit.rs2_rdata := UInt(0)
+      when (t.cause === 2) {
+        inst_commit.rs1_addr := UInt(0)
+        inst_commit.rs1_rdata := UInt(0)
+        inst_commit.rs2_addr := UInt(0)
+        inst_commit.rs2_rdata := UInt(0)
+      }
     }
     .elsewhen (wfd) {
       inst_commit.rd_addr := rd
