@@ -108,7 +108,7 @@ trait GeneratorApp extends App with HasGeneratorUtilities {
   /** Output software test Makefrags, which provide targets for integration testing. */
   def generateTestSuiteMakefrags {
     addTestSuites
-    writeOutputFile(td, s"$longName.d", TestGeneration.generateMakefrag) // Coreplex-specific test suites
+    writeOutputFile(td, s"$longName.d", TestGeneration.generateMakefrag) // Subsystem-specific test suites
   }
 
   def addTestSuites {
@@ -139,7 +139,12 @@ trait GeneratorApp extends App with HasGeneratorUtilities {
 
 object ElaborationArtefacts {
   var files: Seq[(String, () => String)] = Nil
+
   def add(extension: String, contents: => String) {
     files = (extension, () => contents) +: files
+  }
+
+  def contains(extension: String): Boolean = {
+    files.foldLeft(false)((t, s) => {s._1 == extension | t})
   }
 }

@@ -88,16 +88,22 @@ case class TLRegisterNode(
     val regDescs = mapping.flatMap { case (offset, seq) =>
       var currentBitOffset = 0      
       seq.zipWithIndex.map { case (f, i) => {
-        val tmp = (f.desc.map{ _.name}.getOrElse(s"unnamedRegField${i}") -> (
+        val tmp = (f.desc.map{ _.name}.getOrElse(s"unnamedRegField${offset.toHexString}_${currentBitOffset}") -> (
             ("byteOffset"  -> s"0x${offset.toHexString}") ~
             ("bitOffset"   -> currentBitOffset) ~
             ("bitWidth"    -> f.width) ~
             ("name" -> f.desc.map(_.name)) ~
-            ("description" -> f.desc.map{ d=> if (d.desc == "") None else Some(d.desc)}) ~
+            ("description" -> f.desc.map{d => if (d.desc == "") None else Some(d.desc)}) ~
             ("resetValue"  -> f.desc.map{_.reset}) ~
             ("group"       -> f.desc.map{_.group}) ~
             ("groupDesc"   -> f.desc.map{_.groupDesc}) ~
-            ("accessType"  -> f.desc.map {d => d.access.toString})
+            ("accessType"  -> f.desc.map {d => d.access.toString}) ~
+            ("enumerations" -> f.desc.map {d =>
+              Option(d.enumerations.map { case (key, (name, desc)) =>
+                (("value" -> key) ~
+                  ("name" -> name) ~
+                  ("description" -> desc))
+              }).filter(_.nonEmpty)})
         ))
         currentBitOffset = currentBitOffset + f.width
         tmp
@@ -111,7 +117,12 @@ case class TLRegisterNode(
       ("baseAddress" -> base) ~
       ("regfields" -> regDescs)
     ))
-    ElaborationArtefacts.add(s"${base}.regmap.json", pretty(render(json)))
+
+    var suffix = 0
+    while( ElaborationArtefacts.contains(s"${base}.${suffix}.regmap.json")){
+      suffix = suffix + 1
+    }
+    ElaborationArtefacts.add(s"${base}.${suffix}.regmap.json", pretty(render(json)))
   }
 }
 

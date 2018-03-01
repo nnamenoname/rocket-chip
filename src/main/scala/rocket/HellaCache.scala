@@ -6,7 +6,7 @@ package freechips.rocketchip.rocket
 import Chisel._
 import chisel3.experimental.dontTouch
 import freechips.rocketchip.config.{Parameters, Field}
-import freechips.rocketchip.coreplex._
+import freechips.rocketchip.subsystem._
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.tile._
 import freechips.rocketchip.tilelink._
@@ -46,8 +46,8 @@ trait HasL1HellaCacheParameters extends HasL1CacheParameters with HasCoreParamet
   val cacheParams = tileParams.dcache.get
   val cfg = cacheParams
 
-  def wordBits = xLen // really, xLen max 
-  def wordBytes = wordBits/8
+  def wordBits = coreDataBits
+  def wordBytes = coreDataBytes
   def wordOffBits = log2Up(wordBytes)
   def beatBytes = cacheBlockBytes / cacheDataBeats
   def beatWords = beatBytes / wordBytes
@@ -163,7 +163,7 @@ abstract class HellaCache(hartid: Int)(implicit p: Parameters) extends LazyModul
       TLClientParameters(
         name          = s"Core ${hartid} DCache",
          sourceId      = IdRange(0, firstMMIO),
-         supportsProbe = TransferSizes(1, cfg.blockBytes)),
+         supportsProbe = TransferSizes(cfg.blockBytes, cfg.blockBytes)),
       TLClientParameters(
         name          = s"Core ${hartid} DCache MMIO",
         sourceId      = IdRange(firstMMIO, firstMMIO+cfg.nMMIOs),
