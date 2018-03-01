@@ -989,6 +989,7 @@ class RocketWithRVFI(implicit p: Parameters) extends Rocket()(p) {
       // Therefore, we set all illegal instructions to read from 0 register
 //      Could have possibility of other exception causes, so checking t.cause might mask if an illegal instruction occurred
 //      when (t.cause === 2) {
+      // can't look at cause register directly because cause could be illegal_instruction and something else at the same time
       when(Reg(Reg(Reg(id_illegal_insn)))) {
         inst_commit.rs1_addr := UInt(0)
         inst_commit.rs1_rdata := UInt(0)
@@ -996,6 +997,10 @@ class RocketWithRVFI(implicit p: Parameters) extends Rocket()(p) {
         inst_commit.rs2_rdata := UInt(0)
         inst_commit.mem_wmask := UInt(0)
         inst_commit.mem_rmask := UInt(0)
+      }
+      when(wb_reg_valid && wb_ctrl.mem && 
+           (io.dmem.s2_xcpt.ma.st || io.dmem.s2_xcpt.pf.st || io.dmem.s2_xcpt.ae.st)) {
+        inst_commit.mem_wmask := UInt(0)
       }
     }
     .elsewhen (wfd) {
