@@ -992,7 +992,7 @@ class RocketWithRVFI(implicit p: Parameters) extends Rocket()(p) {
 //      Could have possibility of other exception causes, so checking t.cause might mask if an illegal instruction occurred
 //      when (t.cause === 2) {
       // can't look at cause register directly because cause could be illegal_instruction and something else at the same time
-      when(Reg(Reg(Reg(id_illegal_insn)))) {
+      when(Reg(next=Reg(next=Reg(next=id_illegal_insn)))) {
         inst_commit.rs1_addr := UInt(0)
         inst_commit.rs1_rdata := UInt(0)
         inst_commit.rs2_addr := UInt(0)
