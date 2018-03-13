@@ -36,6 +36,15 @@ class SystemBus(params: SystemBusParams)(implicit p: Parameters) extends TLBusWr
   pbus_fixer.suggestName(s"${busName}_pbus_TLFIFOFixer")
   pbus_fixer.node :*= outwardWWNode
 
+  private val dbus_fixer = LazyModule(new TLFIFOFixer(TLFIFOFixer.all))
+  dbus_fixer.suggestName(s"${busName}_dbus_TLFIFOFixer")
+  dbus_fixer.node :*= outwardWWNode
+
+  def toDataBus(addBuffers: Int = 0): TLOutwardNode = {
+    TLBuffer.chain(addBuffers).foldRight(dbus_fixer.node:TLOutwardNode)(_ :*= _)
+  }
+
+  
   def toSplitSlaves: TLOutwardNode = outwardSplitNode
 
   def toPeripheryBus(addBuffers: Int = 0): TLOutwardNode = {
