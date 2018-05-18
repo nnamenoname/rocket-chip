@@ -7,6 +7,7 @@ import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
 import scala.math.{min,max}
+import chisel3.experimental.dontTouch
 
 object EarlyAck {
   sealed trait T
@@ -276,6 +277,10 @@ class TLFragmenter(val minSize: Int, val maxSize: Int, val alwaysMin: Boolean = 
       // Optimize away some of the Repeater's registers
       assert (!repeater.io.full || !aHasData)
       out.a.bits.data := in.a.bits.data
+
+      dontTouch(out.a.bits.data)
+      dontTouch(in.a.bits.data)
+
       val fullMask = UInt((BigInt(1) << beatBytes) - 1)
       assert (!repeater.io.full || in_a.bits.mask === fullMask)
       out.a.bits.mask := Mux(repeater.io.full, fullMask, in.a.bits.mask)

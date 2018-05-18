@@ -7,6 +7,7 @@ import chisel3.experimental.chiselName
 import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.util._
+import chisel3.experimental.dontTouch
 
 class TLRAM(
     address: AddressSet,
@@ -32,6 +33,8 @@ class TLRAM(
 
   lazy val module = new LazyModuleImp(this) {
     val (in, edge) = node.in(0)
+
+    dontTouch(in.a.bits.data)
 
     val addrBits = (mask zip edge.addr_hi(in.a.bits).toBools).filter(_._1).map(_._2)
     val a_legal = address.contains(in.a.bits.address)
